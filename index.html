@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello React!</title>
+  <script src="build/react-with-addons.js"></script>
+  <script src="build/JSXTransformer.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app"></div>
+
+<script type="text/jsx">
+
+var data = [
+  {
+    id         : "slide1",
+    imagePath  : "img1.jpg",
+    imageAlt   : "Slide 1 Image",
+    title      : "Slide 1",
+    subtitle   : "Slide 1 Image SubTitle",
+    text       : "Slide 1 Image Text",
+    action     : "Slide 1 Image Action",
+    actionHref : "href"
+  },
+  {
+    id         : "slide2",
+    imagePath  : "img2.jpg",
+    imageAlt   : "Slide 2 Image",
+    title      : "Slide 2",
+    subtitle   : "Slide 2 Image SubTitle",
+    text       : "Slide 2 Image Text",
+    action     : "Slide 2 Image Action",
+    actionHref : "href"
+  },
+  {
+    id         : "slide3",
+    imagePath  : "img3.jpg",
+    imageAlt   : "Slide 3 Image",
+    title      : "Slide 3",
+    subtitle   : "Slide 3 Image SubTitle",
+    text       : "Slide 3 Image Text",
+    action     : "Slide 3 Image Action",
+    actionHref : "href"
+  },
+];
+
+// App state
+var state = {
+  currentSlide: 0,
+  data        : []
+}
+
+// State transitions
+var actions = {
+  toggleNext: function() {
+    console.log("something worked");
+    var current = state.currentSlide;
+    var next = current + 1;
+    if (next > state.data.length - 1) {
+      next = 0;
+    }
+    state.currentSlide = next;
+    render(state)
+  },
+  togglePrev: function() {
+    console.log("something worked");
+    var current = state.currentSlide;
+    var prev = current - 1;
+    if (prev < 0) {
+      prev = state.data.length - 1;
+    }
+    state.currentSlide = prev;
+    render(state);
+  },
+  toggleSlide: function(id) {
+    console.log("something worked");
+    var index = state.data.map(function (el) {
+      return (
+        el.id
+      );
+    });
+    var currentIndex = index.indexOf(id);
+    state.currentSlide = currentIndex;
+    render(state);
+  }
+}
+
+var Slideshow = React.createClass({
+  render: function() {
+    return (
+      <div className="slideshow">
+        <Slides data={this.props.data} />
+        <Pagination data={this.props.data} />
+        <Controls />
+      </div>
+    );
+  }
+});
+
+var Slides = React.createClass({
+  render: function() {
+    var slidesNodes = this.props.data.map(function (slideNode, index) {
+    var isActive = state.currentSlide === index;
+      return (
+        <Slide active={isActive} key={slideNode.id} imagePath={slideNode.imagePath} imageAlt={slideNode.imageAlt} title={slideNode.title} subtitle={slideNode.subtitle} text={slideNode.text} action={slideNode.action} actionHref={slideNode.actionHref} />
+      );
+    });
+    return (
+      <div className="slides">
+        {slidesNodes}
+      </div>
+    );
+  }
+});
+
+var Slide = React.createClass({
+  render: function() {
+    var classes = React.addons.classSet({
+      'slide': true,
+      'slide--active': this.props.active
+    });
+    return (
+      <div className={classes}>
+        <img src={this.props.imagePath} alt={this.props.imageAlt} />
+        <h2>{this.props.title}</h2>
+        <h3>{this.props.subtitle}</h3>
+        <p>{this.props.text}</p>
+        <a href={this.props.actionHref}>{this.props.action}</a>
+      </div>
+    );
+  }
+});
+
+var Controls = React.createClass({
+  togglePrev: function() {
+    actions.togglePrev();
+  },
+  toggleNext: function() {
+    actions.toggleNext();
+  },
+  render: function() {
+    return (
+      <div className="controls">
+        <div className="toggle toggle--prev" onClick={this.togglePrev}>Prev</div>
+        <div className="toggle toggle--next" onClick={this.toggleNext}>Next</div>
+      </div>
+    );
+  }
+});
+
+var Pagination = React.createClass({
+  render: function() {
+    var paginationNodes = this.props.data.map(function (paginationNode, index) {
+      return (
+        <Pager id={paginationNode.id} key={paginationNode.id} title={paginationNode.title}  />
+      );
+    });
+    return (
+      <div className="pagination">
+        {paginationNodes}
+      </div>
+    );
+  }
+});
+
+var Pager = React.createClass({
+  toggleSlide: function() {
+    actions.toggleSlide(this.props.id);
+  },
+  render: function() {
+    return (
+      <span className="pager" onClick={this.toggleSlide}>{this.props.title}</span>
+    );
+  }
+});
+
+var EmptyMessage = React.createClass({
+  render: function() {
+    return (
+      <div className="empty-message">No Data</div>
+    );
+  }
+});
+
+function render(state) {
+  var hasData = state.data.length > 0;
+  var component;
+  if (hasData) {
+    component = <Slideshow data={state.data} />;
+  }
+  else {
+    component = <EmptyMessage />;
+  }
+  React.render(
+    component,
+    document.getElementById('app')
+  );
+}
+
+render(state);
+
+setTimeout(function() {
+  state.data = data;
+  render(state);
+}, 1000)
+
+
+</script>
+</body>
+</html>
